@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-init
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-init
+  template:
+    metadata:
+      labels:
+        app: web-init
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.19.2
+      initContainers:
+      - name: init-busybox
+        image: busybox
+        command: ['sh', '-c', "until nslookup svc-nginx-init.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for svc-nginx-init; sleep 2; done"]
+
+
